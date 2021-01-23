@@ -3,34 +3,49 @@ const categoriesModel = require('../models/categoriesModels')
 
 module.exports={
     getAll:async (req, res, next) => {
-        const categories = await categoriesModel.find({});
-        res.json(categories);
+       try{ const categories = await categoriesModel.find({});
+        res.status(200).json(categories);
+       }catch (e){
+           next(e);
+       }
     },
     getById:async (req,res,next) =>{
-        console.log(req.params.id)
+        try {console.log(req.params.id)
         const category = await  categoriesModel.findById(req.params.id)
-        res.json(category)
+        res.status(200).json(category)
+        }catch (e){
+            next(e);
+        }
     },
-    create:function (req,res,next){
+    create:async (req,res,next) =>{
         console.log(req.body);
-        const category = new categoriesModel({
-            name:req.body.name,
-        });
-        category.save();
+        try{
+            const category = new categoriesModel({
+                name:req.body.name,
+            });
+            const result = await category.save();
 
-        res.json(category);
-
+            res.status(201).json(result);
+        }catch (e){
+            res.json({message: e.message})
+        }
     },
     update:async (req, res, next) =>{
-        console.log(req.params.id, req.body);
+        try{console.log(req.params.id, req.body);
         const category = await categoriesModel.update({_id:req.params.id},req.body,{multi:false});
 
         res.json(category);
+        }catch (e){
+            next(e);
+        }
     },
     delete:async(req, res, next) => {
-        console.log(req.params.id);
+        try{console.log(req.params.id);
         const category = await categoriesModel.deleteOne({_id:req.params.id})
         res.json({});
+        }catch (e){
+            next(e);
+        }
     }
 
 }

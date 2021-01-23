@@ -30,7 +30,7 @@ app.use('/users', usersRouter);
 //app.use('/products', validateUser, productsRouter);
 app.use('/products',  productsRouter);
 
-app.use('/categories', categoriesRouter);
+app.use('/categories',validateUser, categoriesRouter);
 app.use('/sales', salesRouter);
 
 function validateUser(req,res,next){
@@ -61,7 +61,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({code:err.code, msg:err.message});
 });
 
 module.exports = app;

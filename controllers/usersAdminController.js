@@ -22,30 +22,47 @@ module.exports = {
         }
         res.json(userAdmin);
     },
-    create: function (req, res, next) {
+    create: async (req, res, next) => {
         console.log(req.body);
-        const userAdmin = new userAdminModel({
-            name: req.body.name,
-            user: req.body.user,
-            password: req.body.password,
-        })
-        //console.log(req.body.tags)
-        userAdmin.save();
-        res.json(userAdmin);
+        try{
+            const userAdmin = new userAdminModel({
+                name: req.body.name,
+                user: req.body.user,
+                password: req.body.password,
+            })
+            //console.log(req.body.tags)
+            const result = await userAdmin.save();
+            res.status(201).json(result);
+        }catch (e){
+            next(e);
+        }
     },
-    getById: async function (req, res, next) {
-        console.log(req.params.id);
-        const userAdmin = await userAdminModel.findById(req.params.id);
-        res.json(userAdmin);
+    getById: async  (req, res, next) => {
+        try{
+            console.log(req.params.id);
+            const userAdmin = await userAdminModel.findById(req.params.id);
+            res.status(200).json(userAdmin);
+        }catch (e){
+            next(e);
+        }
     },
-    update: async function (req, res, next) {
-        console.log(req.params.id, req.body);
-        const userAdmin = await userAdminModel.update({ _id: req.params.id }, req.body, { multi: false })
-        res.json(userAdmin);
+    update: async  (req, res, next) => {
+     try{
+             console.log(req.params.id, req.body);
+            const userAdmin = await userAdminModel.update({ _id: req.params.id }, req.body, { multi: false })
+            res.json(userAdmin);
+        }catch (e){
+            next(e);
+        }
     },
-    delete: async function (req, res, next) {
-        console.log(req.params.id);
-        const data = await userAdminModel.deleteOne({ _id: req.params.id });
-        res.json(data);
+    delete: async (req, res, next) => {
+        try {
+            console.log(req.params.id);
+
+            const data = await userAdminModel.deleteOne({_id: req.params.id});
+            res.json(data);
+        }catch (e){
+            next(e);
+        }
     }
 }

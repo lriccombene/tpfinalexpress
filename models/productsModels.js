@@ -30,7 +30,7 @@ const productsSchema = new mongoose.Schema({
         minlength: 1,
         maxlength: 255,
         trim: true,
-        required: true
+        required: [true,'El campo name es obligatorio']
     },
     sku: {
         type: String,
@@ -38,7 +38,7 @@ const productsSchema = new mongoose.Schema({
         minlength: 1,
         maxlength: 255,
         trim: true,
-        required: true
+        required: [true,'El campo SKU es obligatorio']
     },
     description: {
         type: String,
@@ -55,7 +55,7 @@ const productsSchema = new mongoose.Schema({
     price: {
         type: Number,
         min: 1,
-        required: true,
+        required: [true,'El campo Price es obligatorio']
         /*get: function (price_get) {
             return price_get * 1.21;
         }*/

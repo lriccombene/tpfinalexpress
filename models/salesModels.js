@@ -2,12 +2,12 @@ const mongoose = require("../bin/mongodb");
 const productsaleSchema= new mongoose.Schema({
     name:{
         type:String,
-        required:true
+        required: [true,'El campo name es obligatorio']
     },
     amount: {
         type:Number,
         min:1,
-        required:true
+        required:[true,'El campo amount es obligatorio']
     },
 })
 
@@ -16,13 +16,13 @@ const salesSchema = new mongoose.Schema({
     user: {
         type:mongoose.Schema.ObjectId,
         ref: 'users',
-        required:true,
-        type:String
+        required:[true,'El campo user es obligatorio']
+
     },
     amount: {
         type:Number,
         min:1,
-        required:true
+        required:[true,'El campo amount es obligatorio']
     },
     paymentstatus: {
         type: String,

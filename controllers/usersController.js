@@ -4,28 +4,39 @@ const jwt = require('jsonwebtoken');
 module.exports = {
 
     delete:async (req, res, next)=> {
-        console.log(req.params.id);
-        const sale = await usersModel.deleteOne({_id:req.params.id});
-        res.json({});
+        try {
+            console.log(req.params.id);
+            const sale = await usersModel.deleteOne({_id: req.params.id});
+            res.json({});
+        }catch(e){
+            next(e);
+        }
     },
     getAll:async (req, res, next)=> {
-
-        const sales = await  usersModel.find({}).populate('users')
-        res.json(sales);
-
+        try {
+            const sales = await usersModel.find({}).populate('users')
+            res.json(sales);
+        }catch(e){
+            next(e);
+        }
     },
     getById:async (req,res,next) =>{
-        console.log(req.params.id);
-        const sale = await usersModel.findById(req.params.id);
-        res.json(sale);
+        try {console.log(req.params.id);
+            const sale = await usersModel.findById(req.params.id);
+            res.json(sale);
+        }catch(e){
+            next(e);
+        }
     },
-    update:function (req, res, next){
-        console.log(req.params.id, req.body);
-        const sale =  usersModel.update({_id:req.params.id},req.body,{multi:false});
-
-        res.json(sale);
+    update: async (req, res, next) =>{
+        try {console.log(req.params.id, req.body);
+            const sale = await usersModel.update({_id:req.params.id},req.body,{multi:false});
+             res.json(sale);
+        }catch(e){
+            next(e);
+        }
     },
-    create: async function (req, res, next) {
+    create: async  (req, res, next) => {
         console.log(req.body);
         try {
             const user = new usersModel({
@@ -39,7 +50,7 @@ module.exports = {
             next(e)
         }
     },
-    login: async function (req, res, next) {
+    login: async  (req, res, next) =>{
         try {
             const user = await usersModel.findOne({email:req.body.email})
             if(user){
