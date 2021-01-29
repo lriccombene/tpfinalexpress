@@ -6,15 +6,18 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var productsRouter = require('./routes/products')
+var productsRouter = require('./routes/products');
 var categoriesRouter = require('./routes/categories');
-var salesRouter = require('./routes/sales');
+var ventasRouter = require('./routes/ventas');
+var mercadopagoRouter = require('./routes/mercadopago');
 const jwt = require('jsonwebtoken');
+require('dotenv').config() //Incluir para el env
 
 var app = express();
 
-app.set('secretkey','pwa2020C');
-//app.set('secretKey',"dn20203")
+console.log(process.env.SECRET_KEY) //Acceso a variable env
+app.set('secretKey',process.env.SECRET_KEY);
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -25,43 +28,57 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//app.use('/', indexRouter);
-app.use('/users', usersRouter);
-//app.use('/products', validateUser, productsRouter);
-app.use('/products',  productsRouter);
+/** HEADER INICIO */
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Methods','GET,POST,DELETE,PUT');
+  next();
+});
+app.options("/*", function(req, res, next){
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With,x-access-token');
+  res.send(200);
+});
+/** HEADER FIN */
 
-app.use('/categories',validateUser, categoriesRouter);
-app.use('/sales', salesRouter);
+
+app.use('/users', usersRouter);
+//app.use('/productos', validateUser,productsRouter);
+app.use('/productos',productsRouter);
+//app.use('/categories',validateUser, categoriesRouter);
+app.use('/categories', categoriesRouter);
+app.use('/ventas',validateUser, ventasRouter);
+app.use('/mercadopago', mercadopagoRouter);
+
+
 
 function validateUser(req,res,next){
-  //console.log(req.headers['x-access-token']);
-  //console.log(req.app.get('secretkey'))
-  jwt.verify(req.headers['x-access-token'], 'pwa2020C', function (err, decoded) {
+  jwt.verify(req.headers['x-access-token'],req.app.get("secretKey"),function(err,decoded){
     if(err){
-      //console.log('holaa')
-      res.json({message:err.message});
-    } else{
-      console.log(decoded);
+      res.json({message:err.message})
+    }else{
+      console.log(decoded)
       req.body.tokenData = decoded;
       next();
     }
-  });
+  })
 }
-app.validateUser= validateUser;   
+app.validateUser = validateUser;
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
   res.status(err.status || 500);
-  res.json({code:err.code, msg:err.message});
+  res.json({code:err.code,msg:err.message});
 });
 
 module.exports = app;

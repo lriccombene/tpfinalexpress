@@ -1,44 +1,35 @@
 const mongoose = require("../bin/mongodb");
+const errorMessage = require("../util/errorMessage")
 const tagsSchema = new mongoose.Schema({
     name:{
         type:String,
         required:true
     }
-})/*
-const imagesSchema = new mongoose.Schema({
-    field:String,
-    filename:{
-        type:String,
-        required:true
-    },
-    path: {
-        type:String,
-        required:true
-    },
-    size:Number,
-    originalname:{
-        type:String,
-        required:true
-    }
-
 })
-*/
+const imgSchema = new mongoose.Schema({
+    fieldname: "String",
+    originalname: "String",
+    encoding: "String",
+    mimetype: "String",
+    destination: "String",
+    filename: "String",
+    path: "String",
+    size: "String"
+})
 const productsSchema = new mongoose.Schema({
     name: {
         type: String,
         index: true,
-        minlength: 1,
-        maxlength: 255,
+        maxlength: [255,errorMessage.GENERAL.maxlength],
         trim: true,
-        required: [true,'El campo name es obligatorio']
+        required: [true,errorMessage.GENERAL.campo_obligatorio]
     },
     sku: {
         type: String,
         unique: true,
-        minlength: 1,
-        maxlength: 255,
+        maxlength: [255,errorMessage.GENERAL.maxlength],
         trim: true,
-        required: [true,'El campo SKU es obligatorio']
+        required: [true,errorMessage.GENERAL.campo_obligatorio]
     },
     description: {
         type: String,
@@ -54,28 +45,39 @@ const productsSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        min: 1,
-        required: [true,'El campo Price es obligatorio']
-        /*get: function (price_get) {
+        min: [1,errorMessage.GENERAL.minlength],
+        required: [true,errorMessage.GENERAL.campo_obligatorio],
+        get: function (price_get) {
             return price_get * 1.21;
-        }*/
+        }
     },
-    featured:{
-        type: String,
-        trim: true
-     },
-    offerprice:{
-        type: Number,
-        min: 1,
-    },
-  //  images: [imagesSchema],
     quantity: Number,
-    tags:[tagsSchema]
-
-});/*
+    tags:[tagsSchema],
+    images:imgSchema
+    
+});
+productsSchema.statics.findBydIdAndValidate = async function(id){
+    const document = await this.findById(id);
+    if(!document){
+        return{
+            error:true,
+            message:"No existe categoria"
+        }
+        
+    }
+    return document;
+}
 productsSchema.virtual("price_currency").get(function () {
     return "$ " + this.price;
 })
+productsSchema.virtual("image_path").get(function () {
+    if(this.images && this.images.filename){
+        return "http://localhost:3000/images/" + this.images.filename;
+    }else{
+        return null;
+    }
+    
+})
 productsSchema.set('toJSON', { getters: true, virtuals: true });
-*/
+productsSchema.plugin(mongoose.mongoosePaginate);
 module.exports = mongoose.model("products", productsSchema)

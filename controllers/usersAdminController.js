@@ -1,68 +1,57 @@
-const userAdminModel = require("../models/usersAdminModels");
+const usersAdminModel = require("../models/usersAdminModel");
 const bcrypt = require('bcrypt');
-const jsonwebtoken = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 module.exports = {
-    validate: async (req, res, next) => {
-        console.log(req.query)
-        const userAdmin = await userAdminModel.findOne({user:req.body.user});
-        console.log(userAdmin)
-        if(userAdmin){
-            if(bcrypt.compareSync(req.body.password,userAdmin.password)){
-               // console.log(req.app.get('secretkey'))
-                const token = jsonwebtoken.sign({userId:userAdmin._id},req.app.get('secretkey'));
-
-                res.json({message:'usuario okey', token:token});
+    /*validate: async (req, res, next) => {
+        try{
+            console.log(req.query)
+            const userAdmin = await usersAdminModel.findOne({user:req.body.user});
+            if(userAdmin){
+                if(bcrypt.compareSync(req.body.password,userAdmin.password)){
+                    //User y password ok, generar token
+                    const token = jwt.sign({userId:userAdmin._id},req.app.get("secretKey"),{expiresIn:"1h"});
+                    res.json({message:"usuario ok",token:token});
+                }else{
+                    res.json({message:"password incorrecto"});
+                }
             }else{
-                res.json({message:'pass error'})
+                res.json({message:"usuario incorrecto"});
             }
-
-        }else {
-            res.json({message: 'no exite el usu'})
-
+        }catch(e){
+            next(e)
         }
-        res.json(userAdmin);
-    },
-    create: async (req, res, next) => {
-        console.log(req.body);
+        
+    },*/
+    validate: async (req, res, next) => {
         try{
-            const userAdmin = new userAdminModel({
+            console.log(req.query)
+            const {error,message,userAdmin} = await usersAdminModel.validateUser(req.body.user,req.body.password);
+            if(!error){
+                const token = jwt.sign({userId:userAdmin._id},req.app.get("secretKey"),{expiresIn:"1h"});
+                res.json({message:message,token:token});
+                return;
+            }
+            res.json({message:message});
+            console.log(error,message)
+            
+        }catch(e){
+            next(e)
+        }
+        
+    },
+    create: async function (req, res, next) {
+        try{
+            console.log(req.body);
+            const userAdmin = new usersAdminModel({
                 name: req.body.name,
-                user: req.body.user,
-                password: req.body.password,
+                user:req.body.user,
+                password:req.body.password
             })
-            //console.log(req.body.tags)
-            const result = await userAdmin.save();
-            res.status(201).json(result);
-        }catch (e){
-            next(e);
+            const document = await userAdmin.save();
+            res.json(document);
+        }catch(e){
+            next(e)
         }
-    },
-    getById: async  (req, res, next) => {
-        try{
-            console.log(req.params.id);
-            const userAdmin = await userAdminModel.findById(req.params.id);
-            res.status(200).json(userAdmin);
-        }catch (e){
-            next(e);
-        }
-    },
-    update: async  (req, res, next) => {
-     try{
-             console.log(req.params.id, req.body);
-            const userAdmin = await userAdminModel.update({ _id: req.params.id }, req.body, { multi: false })
-            res.json(userAdmin);
-        }catch (e){
-            next(e);
-        }
-    },
-    delete: async (req, res, next) => {
-        try {
-            console.log(req.params.id);
-
-            const data = await userAdminModel.deleteOne({_id: req.params.id});
-            res.json(data);
-        }catch (e){
-            next(e);
-        }
+        
     }
 }

@@ -1,9 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var categoriesController = require('../controllers/categoriesController');
-
-
+var categoriesController = require("../controllers/categoriesController")
 
 /* GET users listing. */
 router.get('/', categoriesController.getAll);
@@ -13,8 +11,4 @@ router.post('/', categoriesController.create);
 //:id es el parametro
 router.put('/:id', categoriesController.update);
 router.delete('/:id',categoriesController.delete);
-
-
-//minuto 3:24:00 clase 3
-
-module.exports =router;
+module.exports = router;
