@@ -72,6 +72,7 @@ module.exports = {
                 category: categoria._id,
                 images:req.body.images,
                 tags:req.body.tags,
+                oferta:req.body.oferta,
             })
             console.log(req.body.tags)
             const document = await  product.save();

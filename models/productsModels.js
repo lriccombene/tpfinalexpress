@@ -51,6 +51,7 @@ const productsSchema = new mongoose.Schema({
             return price_get * 1.21;
         }
     },
+    oferta: Number,
     quantity: Number,
     tags:[tagsSchema],
     images:imgSchema
